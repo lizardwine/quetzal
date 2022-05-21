@@ -1,2 +1,2 @@
-# quetzal
+# quetzal 0.1.0
 DBMS that plans to implement a functionality to accept any python data type, one to remotely connect to the database, an API for other languages, and a long etc.
