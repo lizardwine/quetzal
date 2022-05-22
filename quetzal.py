@@ -127,7 +127,20 @@ def splitter(stream):
 
 
     return result
-
+def v(FIELD,TYPE,NN=False,AI=False,UNIQUE=False,DEFAULT=None,CHECK="True",__config__ = {}):
+    if FIELD == "__sqe__":
+        raise SyntaxError("'__sqe__' is a reserved word")
+    __config__[FIELD] = [f'{str(TYPE)}',str(NN),str(AI),str(UNIQUE),DEFAULT,str(CHECK)]
+    if "__sqe__" in list(__config__):
+        __config__["__sqe__"][FIELD] = len(__config__) - 2
+    else:
+        __config__["__sqe__"] = {}
+        __config__["__sqe__"][FIELD] = 0
+    return __config__
+V = v
+value = v
+Value = v
+VALUE = v
 class connection:
 
     def __init__(self,file,max_size_ram = 2**20,safe_start = False):
