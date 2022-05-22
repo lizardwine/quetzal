@@ -549,8 +549,13 @@ class connection:
                 check = "True"
                 if "CHECK" in j:
                     check = " ".join(i[i.index("CHECK")+1:])
+                TYPE = eval(i[1].upper())
+                if TYPE != "int":
+                    #the conditional is separated to save resources
+                    if (binary_search(j,"AI") >= 0 or (binary_search(j,"AUTO") >= 0 and binary_search(j,"INCREMENT") >= 0)):
+                        TYPE = "int"
 
-                config[i[0].replace('"',"")] = [eval(i[1].upper()),str(binary_search(j,"NOT NULL") >= 0),str(binary_search(j,"AI") >= 0 or (binary_search(j,"AUTO") >= 0 and binary_search(j,"INCREMENT") >= 0)),str(binary_search(j,"UNIQUE") >= 0),default,check]
+                config[i[0].replace('"',"")] = [TYPE,str(binary_search(j,"NOT NULL") >= 0),str(binary_search(j,"AI") >= 0 or (binary_search(j,"AUTO") >= 0 and binary_search(j,"INCREMENT") >= 0)),str(binary_search(j,"UNIQUE") >= 0),default,check] 
                 config["__sqe__"][i[0].replace('"',"")] = count
                 count += 1
 
