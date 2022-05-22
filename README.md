@@ -5,7 +5,7 @@ DBMS that plans to implement a functionality to accept any python data type, one
 
 #### first number, significant developments
 
-#### second numer, minor news
+#### second numer, minor developments
 
 #### third number, significant errors
 
