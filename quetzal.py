@@ -131,7 +131,7 @@ def splitter(stream):
 class connection:
 
     def __init__(self,file,max_size_ram = 2**20,safe_start = False):
-        self.filename = file + ".kts"
+        self.filename = file + ".qtz"
         self.filetmp = file + ".tmp"
         self.max_size_ram = max_size_ram
         if not os.path.exists(self.filename):
