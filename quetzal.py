@@ -554,7 +554,10 @@ class connection:
                     #the conditional is separated to save resources
                     if (binary_search(j,"AI") >= 0 or (binary_search(j,"AUTO") >= 0 and binary_search(j,"INCREMENT") >= 0)):
                         TYPE = "int"
-
+                if type(default) != type(None):
+                    #the conditional is separated to save resources
+                    if type(default) != eval(TYPE):
+                        raise TypeError("the default type is not equal to the variable's type")        
                 config[i[0].replace('"',"")] = [TYPE,str(binary_search(j,"NOT NULL") >= 0),str(binary_search(j,"AI") >= 0 or (binary_search(j,"AUTO") >= 0 and binary_search(j,"INCREMENT") >= 0)),str(binary_search(j,"UNIQUE") >= 0),default,check] 
                 config["__sqe__"][i[0].replace('"',"")] = count
                 count += 1
