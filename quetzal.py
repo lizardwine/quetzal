@@ -549,6 +549,13 @@ class connection:
                 check = "True"
                 if "CHECK" in j:
                     check = " ".join(i[i.index("CHECK")+1:])
+                    count2 = 0
+                    for i in splitter(check):
+                        if IsVariable(i):
+                            count2+=1
+
+                        if count2 > 1:
+                            raise TypeError("the check cannot contain more than one variable")
                 TYPE = eval(i[1].upper())
                 if TYPE != "int":
                     #the conditional is separated to save resources
