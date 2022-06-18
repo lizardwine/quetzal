@@ -1,8 +1,6 @@
 import os,sys,pickle
 import sqlparse
-syntax = ["DEFAULT","CHECK","CONFIG","AI","AUTO","INCREMENT","INTEGER","TEXT","REAL","FLOAT","UNIQUE","OBJECT","BOOL","SELECT","INTO","INSERT","DISTINCT","FROM","WHERE","WHILE","DELETE","SET","TO","UPDATE","BY","VALUES","DROP","ADD","ALTER","TABLE"]
-
-#########
+syntax = ["SELECT","INTO","INSERT","DISTINCT","FROM","WHERE","WHILE","DELETE","SET","TO","UPDATE","BY","VALUES"]
 
 
 INTEGER = "int"
@@ -11,11 +9,8 @@ BOOL = "bool"
 OBJECT = "class"
 REAL = FLOAT = "float"
 
-NOT_NULL = "True"
-UNIQUE = "True"
 
 
-#########
 
 def binary_search(arr, x):
     n = len(arr)
@@ -53,7 +48,7 @@ def setting(L):
     def tos(L):
         ret = ""
         for i in L:
-            ret += '"' + str(i) + '"' + "," if type(i) != str else '"\'' + str(i) + '\'"' +"," 
+            ret += '"' + str(i) + '"' + "," if type(i) != str else '"\'' + str(i) + '\'"' +","
         return ret
     ret = list(set(list(eval(tos(L)))))
 
@@ -73,12 +68,12 @@ def spl(stream):
     sql = []
     for i in list(sqlparsed)[0]:
         if str(i) != " ":
-            sql.append(str(i).replace("=","==").replace("====","==").replace("<>","!=").replace("!==","!=").replace("<==","<=").replace(">==",">=").replace("&&","AND").replace("||","OR"))
+            sql.append(str(i).replace("=","==").replace("<>","!=").replace("!==","!=").replace("<==","<=").replace(">==",">=").replace("&&","AND").replace("||","OR"))
     return sql
 
 
 def splitter(stream):
-    
+
 
     linea = list(stream.strip())
     linea.append(" ")
@@ -121,7 +116,7 @@ def splitter(stream):
                 else:
                     app += linea[j]
                 j += 1
-            #fin = linea[i +2:].index(ends[linea[i]]) + i + 3
+
             result.append(app)
             i = j + 1
 
@@ -134,7 +129,7 @@ def splitter(stream):
     return result
 
 class connection:
-    #2**20 = 1,048,576 bytes
+
     def __init__(self,file,max_size_ram = 2**20,safe_start = False):
         self.filename = file + ".qtz"
         self.filetmp = file + ".tmp"
@@ -144,7 +139,7 @@ class connection:
         if os.path.exists(self.filetmp) and not safe_start:
             os.remove(self.filetmp)
         self.data = open(self.filename,"r").read()
- 
+
         fopen = open(self.filename,"w")
         fopen.write(self.data)
 
@@ -243,6 +238,7 @@ class connection:
         else:
             data = eval(self.data)
         table,config = data[FROM]
+
         ret = []
         for i in table:
             if WHILE != "":
@@ -254,6 +250,7 @@ class connection:
 
                     else:
                         condition += j.lower() + " "
+
 
                 if not eval(condition):
                     break
@@ -276,6 +273,7 @@ class connection:
 
 
                 if eval(condition):
+
                     ret.append(i[target])
 
             elif WHERE != "" and target == "*":
@@ -295,7 +293,7 @@ class connection:
         if DISTINCT:
             ret = setting(ret)
         if ORDER_BY != "":
-            ret = sorted(ret, key=lambda x: str(x)[config["__sqe__"][ORDER_BY]])
+            ret = sorted(ret, key=lambda x: x[config["__sqe__"][ORDER_BY]])
         return ret
     def __check_data_1(self,table):
         if not type(table) in [str]:
@@ -305,39 +303,38 @@ class connection:
         sqe = config["__sqe__"].copy()
         check = config[column][5]
         checkpass = True if check == "True" else False
+
         if not checkpass:
             check = splitter(check)
-            
+
             chk = ""
             for j in check:
                 if j == column:
-                    
-                  
-                    
-                    chk += (str(value) + " ")
+                    chk += (str(value) + " ") if j == "?" else ("1" if len(data[table][0]) == 0 else (str(sorted(list({x[column] for x in data[table][0]}))[-1] + 1) + " "))
 
                 else:
                     if j == "AND" or j == "OR":
                         chk += j.lower() + " "
-                    else:    
-                        chk += j + " " 
+                    else:
+                        chk += j + " "
+
             checkpass = eval(chk)
-               
-        CleanValue = pop(pop(value,-1),0) if (value.startswith("\"") and value.endswith("\"") if type(value) == str else False) else value     
+
+        CleanValue = pop(pop(value,-1),0) if (value.startswith("\"") and value.endswith("\"") if type(value) == str else False) else value
         if CleanValue in list({x[column] for x in data[table][0]}) and eval(config[column][3]):
             CleanValue = CleanValue if not type(CleanValue) == str else f'"{CleanValue}"'
             raise Exception(f"{column} = {CleanValue} already exist in unique row")
         elif not checkpass:
             return [0,False]
-        elif (type(CleanValue) == eval(config[column][0] if config[column][0] != "din" else "") or config[column][0] == "din") or (eval(config[column][0]) == int and CleanValue == "?" and eval(config[column][2])) or (eval(config[column][0]) == str) and checkpass:          
+        elif (type(CleanValue) == eval(config[column][0] if config[column][0] != "din" else "") or config[column][0] == "din") or (eval(config[column][0]) == int and CleanValue == "?" and eval(config[column][2])) or (eval(config[column][0]) == str) and checkpass:
             return [(str(CleanValue) if eval(config[column][0]) == str else CleanValue) if not (eval(config[column][0]) == int and CleanValue == "?" and eval(config[column][2])) else 1 if len(data[table][0]) == 0 else sorted(list({x[column] for x in data[table][0]}))[-1] + 1,True]
-        
+
         elif value == None and not eval(config[column][1]):
             return [config[column][4],True]
         elif value == None and eval(config[column][1]):
             raise TypeError(f"Variable \"{column}\" Type can't be \"None\"")
         elif type(value) != eval(config[column][0]):
-            raise TypeError(f"Variable \"{column}\" Type can't be \"{type(value)}\"")       
+            raise TypeError(f"Variable \"{column}\" Type can't be \"{type(value)}\"")
     def __INSERT(self,INTO,values,columns = ("",)):
         self.__check_data_1(INTO)
         if type(values) not in [tuple,list]:
@@ -346,14 +343,15 @@ class connection:
             columns = (columns,)
         if len(values) != len(columns) and columns != ("",):
             raise Exception(f"lenght of values and columns dont match, len({values}) != len({columns})")
-   
+
         if self.data == None:
             data = eval(open(self.filename,"r").read()) if not os.path.exists(self.filetmp) else self.__load_tmp()
         else:
             data = eval(self.data)
-       
- 
-        
+
+
+
+
         config = data[INTO][1]
         sqe = config["__sqe__"].copy()
         if columns == ("",):
@@ -361,22 +359,28 @@ class connection:
         else:
             V2 = []
             L = config.copy()
-            L.pop("__sqe__")  
+            L.pop("__sqe__")
             for i in range(len(values)):
-                
+
                 V2.insert(sqe[columns[i]],values[i])
                 L.pop(columns[i])
             for i in list(L):
                 V2.insert(sqe[i],L[i][4])
-            values = V2        
-        columns = tuple(config["__sqe__"].copy())    
+            values = V2
+
+
+
+
+        columns = tuple(config["__sqe__"].copy())
         register = {}
 
         for i in range(len(columns)):
+
             dat = self.__check_data_2(data,INTO,values[i],columns[i])
             register[columns[i]],flag = dat
             if not flag:
                 return
+
         data[INTO][0].append(register)
         if sys.getsizeof(data) > self.max_size_ram:
             self.data = None
@@ -390,15 +394,16 @@ class connection:
             data = eval(self.data)
         table,config = data[FROM]
         pops = []
-      
+
+
         for i in range(len(table)):
             condition = ""
             condition2 = splitter(WHERE)
-           
+
             for j in condition2:
 
                 if IsVar(j,config):
-                    
+
                     if config[j][0] == "str":
                         condition += f"\"{table[i][j]}\"" + " "
                     else:
@@ -410,13 +415,16 @@ class connection:
                         condition += "False"
                     else:
                         condition += j + " "
+
             if eval(condition):
                 pops.append(i)
+
         pops = sorted(pops)
         pops.reverse()
-        for i in pops:  
+        for i in pops:
             table.pop(i)
         data[FROM][0] == table
+
         if sys.getsizeof(data) > self.max_size_ram:
             self.data = None
             self.__save_tmp(str(data))
@@ -427,7 +435,7 @@ class connection:
 
         if self.data == None:
             data = eval(open(self.filename,"r").read()) if not os.path.exists(self.filetmp) else self.__load_tmp()
-        else:   
+        else:
             data = eval(self.data)
         if type(SET) not in [tuple,list]:
             SET = (SET,)
@@ -439,115 +447,57 @@ class connection:
             c1 = ""
             c2 = splitter(WHERE)
             for j in c2:
-                if IsVar(j,data[table][1]):
+                if IsVar(j,data[table][config]):
                     c1 += str(data[table][0][i][j])
                 else:
                     c1 += j
             if eval(c1):
                 for j in range(len(TO)):
-                    dat = self.__check_data_2(data,table,TO[j],SET[j])
-                    data[table][0][i][SET[j]],flag = dat
-                    if not flag:
-                        return
+                     data[table][0][i][SET[j]] = self.__check_data_2(data,table,TO[j],SET[j])
         if sys.getsizeof(data) > self.max_size_ram:
             self.data = None
             self.__save_tmp(str(data))
         else:
-            self.data = str(data)           
-    def __CREATE_TABLE(self,name,config): 
+            self.data = str(data)
+
+    def __CREATE_TABLE(self,name,config):
         if self.data == None:
             data = eval(open(self.filename,"r").read()) if not os.path.exists(self.filetmp) else self.__load_tmp()
-        else:   
+        else:
             data = eval(self.data)
         if name in list(data):
             raise Exception(f"table {name} already exists")
         if not IsVariable(name):
-            raise KeyError f'"{name}" not is a valid name'
-        data[name] = [[],config]    
+            raise NameError(f'"{name}" not is a valid name')
+        data[name] = [[],config]
 
         if sys.getsizeof(data) > self.max_size_ram:
             self.data = None
             self.__save_tmp(str(data))
         else:
-            self.data = str(data)          
-    def __ALTER_TABLE(self,table,mode,name,i = None):
-        if self.data == None:
-            data = eval(open(self.filename,"r").read()) if not os.path.exists(self.filetmp) else self.__load_tmp()
-        else:   
-            data = eval(self.data)
+            self.data = str(data)
 
-        
-        if mode == "DROP":
-            for t in range(len(data[table][0])):
-                data[table][0][t].pop(name)
-            data[table][1].pop(name)
-            data[table][1]["__sqe__"].pop(name)
-        elif mode == "ADD":
-            
-            i = spl(i.replace("(","").replace(")","").replace("\n",""))
-        
-            j = sorted(i)
-            for www in range(len(j)):
-                j[www] = j[www].upper()
-            
-            default = None
-            if "DEFAULT" in j:
-                default = eval(i[upper(i).index("DEFAULT") + 1])
-            
-            check = "True"
-            if "CHECK" in j:
-                check = " ".join(i[upper(i).index("CHECK")+1:])
-                count2 = 0
-                for i in splitter(check):
-                    if IsVariable(i):
-                        count2+=1
-                    if count2 > 1:
-                        raise TypeError("the check cannot contain more than one variable")
-            TYPE = eval(i[0].upper())
-            if TYPE != "int":
-                #the conditional is separated to save resources
-                if (binary_search(j,"AI") >= 0 or (binary_search(j,"AUTO") >= 0 and binary_search(j,"INCREMENT") >= 0)):
-                    TYPE = "int"
-            if type(default) != type(None):
-                #the conditional is separated to save resources
-                if type(default) != eval(TYPE):
-                    raise TypeError("the default type is not equal to the variable's type")
-            data[table][1][name] = [TYPE,str(binary_search(j,"NOT NULL") >= 0),str(binary_search(j,"AI") >= 0 or (binary_search(j,"AUTO") >= 0 and binary_search(j,"INCREMENT") >= 0)),str(binary_search(j,"UNIQUE") >= 0),default,check]     
-            for t in range(len(data[table][0])):
-                if binary_search(j,"UNIQUE") == -1:
-                    data[table][0][t][name] = default 
-                elif binary_search(j,"NOT NULL") == -1:
-                    data[table][0][t][name] = None
-                else:
-                    raise TypeError(f"{name} cannot be established because UNIQUE and NOT NULL are True")
-            data[table][1]["__sqe__"][name] = max(list(data[table][1]["__sqe__"].values())) + 1
-
-        if sys.getsizeof(data) > self.max_size_ram:
-            self.data = None
-            self.__save_tmp(str(data))
-        else:
-            self.data = str(data)             
     def execute(self,stream):
         ret = []
         stream = spl(stream)
         stream = upper(stream)
-        
+
         if stream[0] == "SELECT":
 
-            WHILE = ""  
+            WHILE = ""
             for i in range(len(stream)):
                 if stream[i].startswith("WHILE"):
                     WHILE = stream[i+1]
                     break
-            
-            WHERE = ""       
+
+            WHERE = ""
             for i in stream:
                 if i.startswith("WHERE"):
                     WHERE = i.replace("WHERE","").strip()
                     break
-            
+
             ret = self.__SELECT(target = stream[1],FROM = stream[3],WHERE = WHERE,WHILE = WHILE,ORDER_BY = stream[stream.index("BY") + 1] if "BY" in stream else "",DISTINCT = "DISTINCT" in stream)
-           
+
         elif stream[0] == "SORT":
             self.__SORT(stream[1])
         elif stream[0] == "DELETE":
@@ -556,7 +506,7 @@ class connection:
                     break
             else:
                 raise Exception("DELETE query need WHERE")
-            WHERE = ""       
+            WHERE = ""
             for i in stream:
                 if i.startswith("WHERE"):
                     WHERE = i.replace("WHERE","").strip()
@@ -564,66 +514,48 @@ class connection:
             self.__DELETE(stream[2],WHERE)
         elif stream[0] == "INSERT":
             columns = ("",)
-            c = 0 
+            c = 0
             if stream[1] != "INTO":
                 columns = eval(stream[1]) if stream[1].startswith("(") else (stream[1],)
                 c = 1
+
             table = stream[2 + c]
             s = stream[3+c].split("(")
             s[0] = s[0].upper()
             s = "(".join(s)
-            
 
             stream[3+c] = s.replace("VALUES","").replace("?",'"?"')
-            
-            index = 0
-            data = ""
-            if self.data == None:
-                data = eval(open(self.filename,"r").read()) if not os.path.exists(self.filetmp) else self.__load_tmp()
-            else:   
-                data = eval(self.data)
-            sqe = list(data[table][1]["__sqe__"])
-            VALUES = list(eval(stream[3+c]))
-            for v in VALUES:
-                if v == "?":
-                    ID = self.execute(f"SELECT {sqe[index]} FROM {table} BY {sqe[index]}")
-                    ID = 1 if len(ID) == 0 else ID[-1] + 1
-                    v = ID
-                    VALUES[index] = v
-                index += 1
-            stream[3 + c] = str(tuple(VALUES))
+
             values = eval(stream[3 + c]) if stream[3 + c].startswith("(") else stream[3 + c]
             self.__INSERT(table,values,columns)
-
         elif stream[0] == "CREATE":
-            
+
             name = stream[2].replace('"',"")
-            
+
             config = {}
             count = 0
             config["__sqe__"] = {}
             for i in (stream[3]).split(","):
                 i = spl(i.replace("(","").replace(")","").replace("\n",""))
-                
+
                 j = sorted(i)
                 for www in range(len(j)):
                     j[www] = j[www].upper()
-                
+
                 default = None
                 if "DEFAULT" in j:
-                    default = eval(i[upper(i).index("DEFAULT") + 1])
-                
+                    default = eval(i[i.index("DEFAULT") + 1])
+
                 check = "True"
                 if "CHECK" in j:
-                    check = " ".join(i[upper(i).index("CHECK")+1:])
+                    check = " ".join(i[i.index("CHECK")+1:])
                     count2 = 0
-                    for w in splitter(check):
-                        if IsVariable(w):
+                    for i in splitter(check):
+                        if IsVariable(i):
                             count2+=1
 
                         if count2 > 1:
                             raise TypeError("the check cannot contain more than one variable")
-                
                 TYPE = eval(i[1].upper())
                 if TYPE != "int":
                     #the conditional is separated to save resources
@@ -632,22 +564,11 @@ class connection:
                 if type(default) != type(None):
                     #the conditional is separated to save resources
                     if type(default) != eval(TYPE):
-                        raise TypeError("the default type is not equal to the variable's type")
+                        raise TypeError("the default type is not equal to the variable's type")        
                 config[i[0].replace('"',"")] = [TYPE,str(binary_search(j,"NOT NULL") >= 0),str(binary_search(j,"AI") >= 0 or (binary_search(j,"AUTO") >= 0 and binary_search(j,"INCREMENT") >= 0)),str(binary_search(j,"UNIQUE") >= 0),default,check] 
                 config["__sqe__"][i[0].replace('"',"")] = count
                 count += 1
-                        
+
             self.__CREATE_TABLE(name,config)
-        elif stream[0] == "ALTER":
-            table = stream[2]
-            mode = stream[3]
-            name = stream[4]
-            Config = None if len(stream) < 6 else stream[5].replace("CONFIG","")
-            self.__ALTER_TABLE(table,mode,name,Config)
-        elif stream[0] == "UPDATE":
-            table = stream[1]
-            columns = eval(stream[3].replace("(",'"').replace(")",'"').replace(",",'","')) if stream[3].startswith("(") and stream[3].endswith(")") else eval('"' + stream[3] + '"')
-            values = eval(stream[5])
-            self.__UPDATE(table,columns,values)    
+
         return ret
-squab = connection   
