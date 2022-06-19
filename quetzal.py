@@ -298,7 +298,10 @@ class connection:
         if DISTINCT:
             ret = setting(ret)
         if ORDER_BY != "":
-            ret = sorted(ret, key=lambda x: str(x)[config["__sqe__"][ORDER_BY]])
+            if type(config[ORDER_BY][0]) in ["str","bytes"]:
+                ret = sorted(ret, key=lambda x: x[config["__sqe__"][ORDER_BY]])
+            else:
+                ret = sorted(ret)
         return ret
     def __check_data_1(self,table):
         if not type(table) in [str]:
