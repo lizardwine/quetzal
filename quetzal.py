@@ -462,7 +462,7 @@ class connection:
         if name in list(data):
             raise Exception(f"table {name} already exists")
         if not IsVariable(name):
-            raise KeyError f'"{name}" not is a valid name'
+            raise KeyError(f'"{name}" not is a valid name')
         data[name] = [[],config]    
 
         if sys.getsizeof(data) > self.max_size_ram:
