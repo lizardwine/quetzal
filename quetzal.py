@@ -18,7 +18,7 @@ UNIQUE = "True"
 #########
 
 def listdb():
-    return [x for x in os.listdir() if x.endswith(".qtz")]
+    return [".".join(x.split(".")[:-1]) for x in os.listdir() if x.endswith(".qtz")]
 
 def binary_search(arr, x):
     n = len(arr)
