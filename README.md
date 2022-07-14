@@ -1,4 +1,4 @@
-# quetzal v0.4.0.1
+# quetzal v0.4.0.2
 ### DBMS that plans to implement a functionality to accept any python data type, one to remotely connect to the database, an API for other languages, and a long etc.
 
 #### My Discord: savra#0001
